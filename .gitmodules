@@ -1,0 +1,3 @@
+[submodule "motorzao"]
+	path = motorzao
+	url = https://github.com/MRWhub/llama.cpp.git
