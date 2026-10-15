@@ -1,4 +1,4 @@
-package com.example.llama.ui.screens
+package com.aichat.app.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background

@@ -1,4 +1,4 @@
-package com.example.llama.utils
+package com.aichat.app.utils
 
 import android.content.Context
 import android.content.Intent

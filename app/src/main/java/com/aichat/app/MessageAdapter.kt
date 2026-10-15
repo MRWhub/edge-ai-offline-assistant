@@ -1,4 +1,4 @@
-package com.example.llama
+package com.aichat.app
 
 import android.view.LayoutInflater
 import android.view.View

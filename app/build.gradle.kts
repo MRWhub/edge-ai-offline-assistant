@@ -79,6 +79,13 @@ dependencies {
     implementation(libs.objectbox.android)
     implementation(libs.objectbox.kotlin)
 
+    // Security (Crypto DataStore / Keys)
+    implementation(libs.androidx.security.crypto)
+
+    // Document Extractors
+    implementation(libs.pdfbox.android)
+    implementation(libs.poi.ooxml)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

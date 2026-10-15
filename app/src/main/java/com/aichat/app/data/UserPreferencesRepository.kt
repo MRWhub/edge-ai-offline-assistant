@@ -1,4 +1,4 @@
-package com.example.llama.data
+package com.aichat.app.data
 
 import android.content.Context
 import androidx.datastore.core.DataStore

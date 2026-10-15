@@ -1,11 +1,11 @@
-package com.example.llama.ui.screens
+package com.aichat.app.ui.screens
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import com.example.llama.ui.ChatMessage
-import com.example.llama.ui.MainViewModel
-import com.example.llama.ui.Screen
+import com.aichat.app.ui.ChatMessage
+import com.aichat.app.ui.MainViewModel
+import com.aichat.app.ui.Screen
 
 @Composable
 fun MainScreen(

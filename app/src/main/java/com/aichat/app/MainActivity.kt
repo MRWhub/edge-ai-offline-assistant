@@ -1,4 +1,4 @@
-package com.example.llama
+package com.aichat.app
 
 import android.net.Uri
 import android.os.Bundle

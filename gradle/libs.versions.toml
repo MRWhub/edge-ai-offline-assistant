@@ -26,6 +26,13 @@ hilt = "2.51.1"
 hilt-navigation-compose = "1.2.0"
 objectbox = "4.0.3"
 
+# Security
+security-crypto = "1.1.0-alpha06"
+
+# Document Extractors (PDF & DOCX)
+pdfbox-android = "2.0.27.0"
+poi = "5.2.3"
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
@@ -72,6 +79,13 @@ hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-com
 # ObjectBox
 objectbox-android = { group = "io.objectbox", name = "objectbox-android", version.ref = "objectbox" }
 objectbox-kotlin = { group = "io.objectbox", name = "objectbox-kotlin", version.ref = "objectbox" }
+
+# Security
+androidx-security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "security-crypto" }
+
+# Document Extractors
+pdfbox-android = { group = "com.tomroush", name = "pdfbox-android", version.ref = "pdfbox-android" }
+poi-ooxml = { group = "org.apache.poi", name = "poi-ooxml", version.ref = "poi" }
 
 [bundles]
 androidx = [

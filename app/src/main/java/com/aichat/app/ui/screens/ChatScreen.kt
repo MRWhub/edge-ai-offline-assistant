@@ -1,4 +1,4 @@
-package com.example.llama.ui.screens
+package com.aichat.app.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -51,8 +51,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.llama.ui.ChatMessage
-import com.example.llama.ui.PerformanceMetrics
+import com.aichat.app.ui.ChatMessage
+import com.aichat.app.ui.PerformanceMetrics
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
