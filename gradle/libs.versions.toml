@@ -84,8 +84,8 @@ objectbox-kotlin = { group = "io.objectbox", name = "objectbox-kotlin", version.
 androidx-security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "security-crypto" }
 
 # Document Extractors
-pdfbox-android = { group = "com.tomroush", name = "pdfbox-android", version.ref = "pdfbox-android" }
-poi-ooxml = { group = "org.apache.poi", name = "poi-ooxml", version.ref = "poi" }
+pdfbox-android = { module = "com.tomroush:pdfbox-android", version.ref = "pdfbox-android" }
+poi-ooxml = { module = "org.apache.poi:poi-ooxml", version.ref = "poi" }
 
 [bundles]
 androidx = [
