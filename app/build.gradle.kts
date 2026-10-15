@@ -83,7 +83,6 @@ dependencies {
     implementation(libs.androidx.security.crypto)
 
     // Document Extractors
-    implementation(libs.pdfbox.android)
     implementation(libs.poi.ooxml)
 
     testImplementation(libs.junit)

@@ -29,8 +29,7 @@ objectbox = "4.0.3"
 # Security
 security-crypto = "1.1.0-alpha06"
 
-# Document Extractors (PDF & DOCX)
-pdfbox-android = "2.0.27.0"
+# Document Extractors (DOCX)
 poi = "5.2.3"
 
 [plugins]
@@ -84,7 +83,6 @@ objectbox-kotlin = { group = "io.objectbox", name = "objectbox-kotlin", version.
 androidx-security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "security-crypto" }
 
 # Document Extractors
-pdfbox-android = { module = "com.tomroush:pdfbox-android", version.ref = "pdfbox-android" }
 poi-ooxml = { module = "org.apache.poi:poi-ooxml", version.ref = "poi" }
 
 [bundles]
