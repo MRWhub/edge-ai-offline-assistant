@@ -10,9 +10,15 @@ import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
+import javax.inject.Inject
+import javax.inject.Singleton
+
+import dagger.hilt.android.qualifiers.ApplicationContext
+
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "user_prefs")
 
-class UserPreferencesRepository(private val context: Context) {
+@Singleton
+class UserPreferencesRepository @Inject constructor(@ApplicationContext private val context: Context) {
 
     private val ROUTINE_CONTEXT_KEY = stringPreferencesKey("routine_context")
     private val ONBOARDING_COMPLETED_KEY = booleanPreferencesKey("onboarding_completed")

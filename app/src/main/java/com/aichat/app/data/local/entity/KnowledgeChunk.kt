@@ -5,20 +5,20 @@ import io.objectbox.annotation.HnswIndex
 import io.objectbox.annotation.Id
 
 @Entity
-data class KnowledgeChunk(
+class KnowledgeChunk(
     @Id var id: Long = 0,
     
     // O texto original extraído do documento/áudio/chat
-    var textContent: String? = null,
+    var textContent: String = "",
     
     // Referência da fonte (ex: "nome_do_arquivo.pdf" ou "user_chat")
-    var sourceName: String? = null,
+    var sourceName: String = "",
     
     // Timestamp para filtragem de relevância (RF04)
     var timestamp: Long = System.currentTimeMillis(),
 
     // O vetor gerado por embeddings que será pesquisado pelo ObjectBox
-    @HnswIndex(dimensions = 384) // 384 é comum para modelos all-MiniLM, ajustar conforme o modelo GGUF escolhido para embeddings
+    @HnswIndex(dimensions = 384) 
     var embedding: FloatArray? = null
 ) {
     override fun equals(other: Any?): Boolean {

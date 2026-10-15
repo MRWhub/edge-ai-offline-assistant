@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
 data class ChatMessage(
     val id: String,
@@ -38,7 +40,8 @@ data class UiState(
     val metrics: PerformanceMetrics = PerformanceMetrics()
 )
 
-class MainViewModel(private val repository: UserPreferencesRepository) : ViewModel() {
+@HiltViewModel
+class MainViewModel @Inject constructor(private val repository: UserPreferencesRepository) : ViewModel() {
 
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
