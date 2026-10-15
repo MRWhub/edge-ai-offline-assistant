@@ -272,6 +272,6 @@ fun GgufMetadata.filename() = when {
         }
     }
     else -> {
-        "model-${System.currentTimeMillis().toHexString()}"
+        "model-${System.currentTimeMillis().toString(16)}"
     }
 }
