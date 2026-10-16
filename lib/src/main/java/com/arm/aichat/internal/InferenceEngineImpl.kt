@@ -44,7 +44,8 @@ import java.io.IOException
  * @see ai_chat.cpp for the native implementation details
  */
 internal class InferenceEngineImpl private constructor(
-    private val nativeLibDir: String
+    private val nativeLibDir: String,
+    private val contextSize: Int
 ) : InferenceEngine {
 
     companion object {
@@ -65,9 +66,23 @@ internal class InferenceEngineImpl private constructor(
                 val nativeLibDir = context.applicationInfo.nativeLibraryDir
                 require(nativeLibDir.isNotBlank()) { "Expected a valid native library path!" }
 
+                // Calculate optimal context size based on total RAM
+                val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as android.app.ActivityManager
+                val memoryInfo = android.app.ActivityManager.MemoryInfo()
+                activityManager.getMemoryInfo(memoryInfo)
+                val totalRamGb = memoryInfo.totalMem / (1024.0 * 1024.0 * 1024.0)
+
+                val contextSize = when {
+                    totalRamGb > 8.0 -> 8192
+                    totalRamGb > 4.0 -> 4096
+                    else -> 2048
+                }
+                
+                Log.i(TAG, "Device has \${totalRamGb}GB RAM. Using context size: \$contextSize")
+
                 try {
                     Log.i(TAG, "Instantiating InferenceEngineImpl,,,")
-                    InferenceEngineImpl(nativeLibDir).also { instance = it }
+                    InferenceEngineImpl(nativeLibDir, contextSize).also { instance = it }
                 } catch (e: UnsatisfiedLinkError) {
                     Log.e(TAG, "Failed to load native library from $nativeLibDir", e)
                     throw e
@@ -86,7 +101,7 @@ internal class InferenceEngineImpl private constructor(
     private external fun load(modelPath: String): Int
 
     @FastNative
-    private external fun prepare(): Int
+    private external fun prepare(contextSize: Int): Int
 
     @FastNative
     private external fun systemInfo(): String
@@ -168,7 +183,7 @@ internal class InferenceEngineImpl private constructor(
                     // TODO-han.yin: find a better way to pass other error codes
                     if (it != 0) throw UnsupportedArchitectureException()
                 }
-                prepare().let {
+                prepare(contextSize).let {
                     if (it != 0) throw IOException("Failed to prepare resources")
                 }
                 Log.i(TAG, "Model loaded!")
