@@ -1,15 +1,23 @@
 package com.aichat.app.ui
 
+import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.aichat.app.data.UserPreferencesRepository
+import com.aichat.app.data.local.manager.GgufModelManager
+import com.arm.aichat.InferenceEngine
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.InputStream
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -37,14 +45,23 @@ data class UiState(
     val messages: List<ChatMessage> = emptyList(),
     val isGenerating: Boolean = false,
     val isDebugModeEnabled: Boolean = false,
-    val metrics: PerformanceMetrics = PerformanceMetrics()
+    val metrics: PerformanceMetrics = PerformanceMetrics(),
+    val isModelReady: Boolean = false,
+    val systemMessage: String = ""
 )
 
 @HiltViewModel
-class MainViewModel @Inject constructor(private val repository: UserPreferencesRepository) : ViewModel() {
+class MainViewModel @Inject constructor(
+    private val repository: UserPreferencesRepository,
+    private val engine: InferenceEngine,
+    private val modelManager: GgufModelManager
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+
+    private var generationJob: Job? = null
+    private val lastAssistantMsg = StringBuilder()
 
     init {
         // Load initial state from DataStore
@@ -56,7 +73,7 @@ class MainViewModel @Inject constructor(private val repository: UserPreferencesR
                 listOf(
                     ChatMessage(
                         id = "welcome",
-                        text = "Olá! Já recuperei suas preferências. Como posso te ajudar hoje?",
+                        text = "Olá! Já recuperei suas preferências. Selecione um modelo GGUF no botão superior para começarmos a conversar.",
                         isUser = false
                     )
                 )
@@ -70,6 +87,84 @@ class MainViewModel @Inject constructor(private val repository: UserPreferencesR
                     userRoutineContext = routineText,
                     messages = initialMessages
                 )
+            }
+        }
+        
+        // Listen to engine state
+        viewModelScope.launch {
+            engine.state.collect { engineState ->
+                when (engineState) {
+                    is InferenceEngine.State.ModelReady -> {
+                        _uiState.update { it.copy(isModelReady = true, isGenerating = false, systemMessage = "Modelo carregado!") }
+                    }
+                    is InferenceEngine.State.Generating -> {
+                        _uiState.update { it.copy(isGenerating = true, systemMessage = "Gerando resposta...") }
+                    }
+                    is InferenceEngine.State.Error -> {
+                        _uiState.update { it.copy(isGenerating = false, systemMessage = "Erro: ${engineState.exception.message ?: "Desconhecido"}") }
+                    }
+                    is InferenceEngine.State.LoadingModel -> {
+                         _uiState.update { it.copy(isGenerating = true, isModelReady = false, systemMessage = "Carregando pesos...") }
+                    }
+                    else -> {}
+                }
+            }
+        }
+    }
+
+    /**
+     * Called when user selects a GGUF file from the URI picker.
+     * Copies to safe storage and loads into InferenceEngine.
+     */
+    fun loadModelFromUri(fileName: String, inputStream: InputStream) {
+        viewModelScope.launch {
+            try {
+                _uiState.update { it.copy(systemMessage = "Copiando modelo para armazenamento seguro...") }
+                
+                // Copy the file to the app's internal filesDir
+                val modelFile = modelManager.saveModelFromStream(fileName, inputStream)
+                
+                _uiState.update { it.copy(systemMessage = "Carregando modelo nativamente...") }
+                // Load into Llama.cpp
+                engine.loadModel(modelFile.absolutePath)
+                
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Error loading model", e)
+                _uiState.update { it.copy(systemMessage = "Falha ao carregar: ${e.message}") }
+            }
+        }
+    }
+
+    fun sendPrompt(userText: String, contextText: String) {
+        if (userText.isBlank()) return
+
+        // Save user message to state
+        val userMsg = ChatMessage(id = System.currentTimeMillis().toString(), text = userText, isUser = true)
+        val assistantMsgId = (System.currentTimeMillis() + 1).toString()
+        val assistantMsg = ChatMessage(id = assistantMsgId, text = "", isUser = false)
+        
+        _uiState.update { state ->
+            state.copy(messages = state.messages + userMsg + assistantMsg)
+        }
+
+        lastAssistantMsg.clear()
+
+        // Send to Engine
+        generationJob = viewModelScope.launch {
+            try {
+                engine.sendUserPrompt(userText)
+                    .onCompletion {
+                        // Done generating
+                    }
+                    .collect { token ->
+                        // Append token and update UI
+                        lastAssistantMsg.append(token)
+                        updateLastAssistantMessage(lastAssistantMsg.toString())
+                    }
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Error generating text", e)
+                lastAssistantMsg.append("\n[Erro de inferência: ${e.message}]")
+                updateLastAssistantMessage(lastAssistantMsg.toString())
             }
         }
     }
@@ -86,7 +181,7 @@ class MainViewModel @Inject constructor(private val repository: UserPreferencesR
             _uiState.update { currentState ->
                 val systemMsg = ChatMessage(
                     id = "welcome",
-                    text = "Olá! Já entendi um pouco sobre sua rotina. Como posso te ajudar hoje?",
+                    text = "Olá! Já entendi um pouco sobre sua rotina. Selecione um modelo GGUF usando a engrenagem no topo para conversar.",
                     isUser = false
                 )
                 currentState.copy(
@@ -107,7 +202,7 @@ class MainViewModel @Inject constructor(private val repository: UserPreferencesR
         }
     }
 
-    fun updateLastAssistantMessage(newContent: String) {
+    private fun updateLastAssistantMessage(newContent: String) {
         _uiState.update { state ->
             val lastIndex = state.messages.indexOfLast { !it.isUser }
             if (lastIndex != -1) {
@@ -118,21 +213,10 @@ class MainViewModel @Inject constructor(private val repository: UserPreferencesR
         }
     }
 
-    fun setGenerating(generating: Boolean) {
-        _uiState.update { it.copy(isGenerating = generating) }
-    }
-
-    fun updateMetrics(tps: Float, latency: Long, ram: Int) {
-        _uiState.update { it.copy(metrics = PerformanceMetrics(tps, latency, ram)) }
-    }
-
-    class Factory(private val repository: UserPreferencesRepository) : ViewModelProvider.Factory {
-        @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
-                return MainViewModel(repository) as T
-            }
-            throw IllegalArgumentException("Unknown ViewModel class")
-        }
+    override fun onCleared() {
+        generationJob?.cancel()
+        // DO NOT call engine.destroy() here yet because the Engine is a Singleton shared by the whole app.
+        // It lives as long as the application lives.
+        super.onCleared()
     }
 }

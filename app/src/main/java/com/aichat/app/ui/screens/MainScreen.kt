@@ -11,7 +11,8 @@ import com.aichat.app.ui.Screen
 fun MainScreen(
     viewModel: MainViewModel,
     onSendPromptToEngine: (String, String) -> Unit,
-    onStartVoiceRecognition: ((String) -> Unit) -> Unit
+    onStartVoiceRecognition: ((String) -> Unit) -> Unit,
+    onSelectModelClick: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -34,6 +35,8 @@ fun MainScreen(
                 isDebugModeEnabled = uiState.isDebugModeEnabled,
                 metrics = uiState.metrics,
                 isGenerating = uiState.isGenerating,
+                isModelReady = uiState.isModelReady,
+                systemMessage = uiState.systemMessage,
                 onToggleDebugMode = { viewModel.toggleDebugMode() },
                 onSendMessage = { userText ->
                     // Append user message
@@ -57,7 +60,8 @@ fun MainScreen(
                 },
                 onMicClick = { onResult ->
                     onStartVoiceRecognition(onResult)
-                }
+                },
+                onSelectModelClick = onSelectModelClick
             )
         }
     }

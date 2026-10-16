@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -61,9 +62,12 @@ fun ChatScreen(
     isDebugModeEnabled: Boolean,
     metrics: PerformanceMetrics,
     isGenerating: Boolean,
+    isModelReady: Boolean,
+    systemMessage: String,
     onToggleDebugMode: () -> Unit,
     onSendMessage: (String) -> Unit,
-    onMicClick: ((String) -> Unit) -> Unit
+    onMicClick: ((String) -> Unit) -> Unit,
+    onSelectModelClick: () -> Unit
 ) {
     var inputText by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
@@ -110,6 +114,14 @@ fun ChatScreen(
                         }
                     },
                     actions = {
+                        // Select Model
+                        IconButton(onClick = onSelectModelClick) {
+                            Icon(
+                                imageVector = Icons.Default.Settings,
+                                contentDescription = "Selecionar Modelo GGUF",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                         // Debug Mode Toggle
                         IconButton(onClick = onToggleDebugMode) {
                             Icon(
@@ -123,6 +135,25 @@ fun ChatScreen(
                         containerColor = MaterialTheme.colorScheme.surface
                     )
                 )
+
+                // Status Message Banner (e.g. Loading Model)
+                AnimatedVisibility(
+                    visible = !isModelReady && systemMessage.isNotBlank(),
+                    enter = expandVertically(),
+                    exit = shrinkVertically()
+                ) {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.errorContainer
+                    ) {
+                        Text(
+                            text = systemMessage,
+                            modifier = Modifier.padding(16.dp),
+                            color = MaterialTheme.colorScheme.onErrorContainer,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
 
                 // Performance Monitor Banner (Debug Mode)
                 AnimatedVisibility(
