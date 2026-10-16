@@ -88,6 +88,28 @@ class MainViewModel @Inject constructor(
                     messages = initialMessages
                 )
             }
+            
+            // Auto-load last selected model (RNF07)
+            if (isCompleted) {
+                val lastModel = repository.lastModelName.first()
+                if (!lastModel.isNullOrEmpty()) {
+                    val modelFile = modelManager.getModelFile(lastModel)
+                    if (modelFile != null && modelFile.exists()) {
+                        try {
+                            _uiState.update { it.copy(systemMessage = "Restaurando último modelo...", isGenerating = true) }
+                            withContext(Dispatchers.IO) {
+                                engine.loadModel(modelFile.absolutePath)
+                                val systemPrompt = "Você é um assistente de IA focado em privacidade chamado AiChat. Você está executando localmente no celular do usuário. Responda de forma empática e segura. Contexto do usuário: $routineText"
+                                engine.setSystemPrompt(systemPrompt)
+                            }
+                            _uiState.update { it.copy(isModelReady = true, isGenerating = false, systemMessage = "Modelo restaurado!") }
+                        } catch (e: Exception) {
+                            Log.e("MainViewModel", "Failed to auto-load model", e)
+                            _uiState.update { it.copy(isGenerating = false, systemMessage = "Falha ao restaurar modelo anterior.") }
+                        }
+                    }
+                }
+            }
         }
         
         // Listen to engine state
@@ -123,6 +145,7 @@ class MainViewModel @Inject constructor(
                 
                 // Copy the file to the app's internal filesDir
                 val modelFile = modelManager.saveModelFromStream(fileName, inputStream)
+                repository.saveLastModelName(fileName)
                 
                 _uiState.update { it.copy(systemMessage = "Carregando pesos nativamente...") }
                 // Load into Llama.cpp

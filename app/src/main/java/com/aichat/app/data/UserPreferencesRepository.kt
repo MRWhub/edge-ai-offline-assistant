@@ -22,6 +22,7 @@ class UserPreferencesRepository @Inject constructor(@ApplicationContext private 
 
     private val ROUTINE_CONTEXT_KEY = stringPreferencesKey("routine_context")
     private val ONBOARDING_COMPLETED_KEY = booleanPreferencesKey("onboarding_completed")
+    private val LAST_MODEL_NAME_KEY = stringPreferencesKey("last_model_name")
 
     val routineContext: Flow<String> = context.dataStore.data
         .map { preferences ->
@@ -31,6 +32,11 @@ class UserPreferencesRepository @Inject constructor(@ApplicationContext private 
     val onboardingCompleted: Flow<Boolean> = context.dataStore.data
         .map { preferences ->
             preferences[ONBOARDING_COMPLETED_KEY] ?: false
+        }
+        
+    val lastModelName: Flow<String?> = context.dataStore.data
+        .map { preferences ->
+            preferences[LAST_MODEL_NAME_KEY]
         }
 
     suspend fun saveRoutineContext(contextText: String) {
@@ -42,6 +48,12 @@ class UserPreferencesRepository @Inject constructor(@ApplicationContext private 
     suspend fun completeOnboarding() {
         context.dataStore.edit { preferences ->
             preferences[ONBOARDING_COMPLETED_KEY] = true
+        }
+    }
+    
+    suspend fun saveLastModelName(modelName: String) {
+        context.dataStore.edit { preferences ->
+            preferences[LAST_MODEL_NAME_KEY] = modelName
         }
     }
 }
