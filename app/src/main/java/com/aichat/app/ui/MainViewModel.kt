@@ -124,9 +124,16 @@ class MainViewModel @Inject constructor(
                 // Copy the file to the app's internal filesDir
                 val modelFile = modelManager.saveModelFromStream(fileName, inputStream)
                 
-                _uiState.update { it.copy(systemMessage = "Carregando modelo nativamente...") }
+                _uiState.update { it.copy(systemMessage = "Carregando pesos nativamente...") }
                 // Load into Llama.cpp
                 engine.loadModel(modelFile.absolutePath)
+                
+                _uiState.update { it.copy(systemMessage = "Injetando Prompt de Sistema...") }
+                // Injetar o System Prompt inicial (RF03 / RN05)
+                val systemPrompt = "Você é um assistente de IA focado em privacidade chamado AiChat. Você está executando localmente no celular do usuário. Responda de forma empática e segura. Contexto do usuário: ${_uiState.value.userRoutineContext}"
+                engine.setSystemPrompt(systemPrompt)
+
+                _uiState.update { it.copy(isModelReady = true, systemMessage = "Modelo carregado com sucesso!") }
                 
             } catch (e: Exception) {
                 Log.e("MainViewModel", "Error loading model", e)

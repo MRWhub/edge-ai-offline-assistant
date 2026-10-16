@@ -73,9 +73,9 @@ internal class InferenceEngineImpl private constructor(
                 val totalRamGb = memoryInfo.totalMem / (1024.0 * 1024.0 * 1024.0)
 
                 val contextSize = when {
-                    totalRamGb > 8.0 -> 8192
-                    totalRamGb > 4.0 -> 4096
-                    else -> 2048
+                    totalRamGb >= 8.0 -> 8192
+                    totalRamGb >= 4.0 -> 4096
+                    else -> 1024 // Conservador para <= 4GB RAM conforme requisitos de prevenção estrita de OOM
                 }
                 
                 Log.i(TAG, "Device has \${totalRamGb}GB RAM. Using context size: \$contextSize")
