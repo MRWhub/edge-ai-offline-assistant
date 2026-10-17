@@ -118,7 +118,7 @@ Java_com_arm_aichat_internal_InferenceEngineImpl_prepare(JNIEnv * /*env*/, jobje
     if (!context) { return 1; }
     g_context = context;
     g_batch = llama_batch_init(BATCH_SIZE, 0, 1);
-    g_chat_templates = common_chat_templates_init(g_model, "");
+    g_chat_templates = common_chat_templates_init(g_model, "chatml");
     g_sampler = new_sampler(DEFAULT_SAMPLER_TEMP);
     return 0;
 }
