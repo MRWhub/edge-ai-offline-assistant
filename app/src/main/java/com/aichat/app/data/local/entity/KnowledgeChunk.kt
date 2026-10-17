@@ -17,8 +17,15 @@ class KnowledgeChunk(
     // Timestamp para filtragem de relevância (RF04)
     var timestamp: Long = System.currentTimeMillis(),
 
+    // O modelo usado para gerar o vetor (para evitar incompatibilidades futuras)
+    var embeddingModelId: String = "",
+
+    // Quantidade de tokens estimada (para orçamento de contexto LLM)
+    var tokenCount: Int = 0,
+
     // O vetor gerado por embeddings que será pesquisado pelo ObjectBox
-    @HnswIndex(dimensions = 384) 
+    // Alterado para 512 dimensões (Padrão do Universal Sentence Encoder)
+    @HnswIndex(dimensions = 512) 
     var embedding: FloatArray? = null
 ) {
     override fun equals(other: Any?): Boolean {

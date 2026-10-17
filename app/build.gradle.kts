@@ -89,6 +89,9 @@ dependencies {
     // Document Extractors
     implementation(libs.poi.ooxml)
 
+    // Text Embeddings (RAG)
+    implementation(libs.mediapipe.tasks.text)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

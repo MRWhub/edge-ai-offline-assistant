@@ -32,6 +32,9 @@ security-crypto = "1.1.0-alpha06"
 # Document Extractors (DOCX)
 poi = "5.2.3"
 
+# Embeddings (MediaPipe)
+mediapipe-tasks-text = "0.10.14"
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
@@ -84,6 +87,9 @@ androidx-security-crypto = { group = "androidx.security", name = "security-crypt
 
 # Document Extractors
 poi-ooxml = { module = "org.apache.poi:poi-ooxml", version.ref = "poi" }
+
+# Embeddings
+mediapipe-tasks-text = { module = "com.google.mediapipe:tasks-text", version.ref = "mediapipe-tasks-text" }
 
 [bundles]
 androidx = [
