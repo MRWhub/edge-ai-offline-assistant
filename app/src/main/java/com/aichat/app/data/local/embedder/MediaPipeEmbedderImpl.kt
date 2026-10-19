@@ -17,8 +17,9 @@ class MediaPipeEmbedderImpl(
     private val modelFileName: String = "universal_sentence_encoder.tflite"
 ) : TextEmbedder {
 
-    override val modelId: String = "mediapipe_use_512"
-    override val dimensions: Int = 512
+    // A versão mobile do USE embarcada no MediaPipe produz 100 dimensões, não 512.
+    override val modelId: String = "mediapipe_use_mobile_100"
+    override val dimensions: Int = 100
 
     private var embedder: MPTextEmbedder? = null
 

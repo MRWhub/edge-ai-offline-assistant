@@ -27,8 +27,8 @@ class KnowledgeChunk(
     var keywords: String = "",
 
     // O vetor gerado por embeddings que será pesquisado pelo ObjectBox
-    // Alterado para 512 dimensões (Padrão do Universal Sentence Encoder)
-    @HnswIndex(dimensions = 512) 
+    // Alterado para 100 dimensões (Padrão do modelo Mobile Universal Sentence Encoder do MediaPipe Tasks Text)
+    @HnswIndex(dimensions = 100) 
     var embedding: FloatArray? = null
 ) {
     override fun equals(other: Any?): Boolean {

@@ -28,10 +28,10 @@ class KnowledgeRepositoryTest {
     
     // Embedder Falso e determinístico construído estritamente para o ambiente de testes (TDD).
     // Evita a obrigatoriedade de baixar e inicializar um modelo .tflite real na CI (evita flaky tests)
-    // ao mesmo tempo que cumpre o papel matemático do vetor (512 dimensões) para o ObjectBox operar.
+    // ao mesmo tempo que cumpre o papel matemático do vetor (100 dimensões) para o ObjectBox operar.
     private val fakeEmbedder = object : TextEmbedder {
         override val modelId: String = "fake_test_model"
-        override val dimensions: Int = 512
+        override val dimensions: Int = 100
 
         override suspend fun embed(text: String): FloatArray {
             val vector = FloatArray(dimensions)
@@ -82,7 +82,7 @@ class KnowledgeRepositoryTest {
         val saved = box.get(id)
         assertEquals("Texto deve ser preservado", text, saved.textContent)
         assertEquals("Modelo ID deve bater", "fake_test_model", saved.embeddingModelId)
-        assertEquals("Vetor de 512 gerado", 512, saved.embedding?.size)
+        assertEquals("Vetor de 100 gerado", 100, saved.embedding?.size)
     }
 
     @Test
