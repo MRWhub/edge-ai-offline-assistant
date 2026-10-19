@@ -5,7 +5,7 @@
   "entities": [
     {
       "id": "1:1667744133074337982",
-      "lastPropertyId": "7:961348607998939963",
+      "lastPropertyId": "8:8831038364653448399",
       "name": "KnowledgeChunk",
       "properties": [
         {
@@ -45,6 +45,11 @@
           "id": "7:961348607998939963",
           "name": "tokenCount",
           "type": 5
+        },
+        {
+          "id": "8:8831038364653448399",
+          "name": "keywords",
+          "type": 9
         }
       ],
       "relations": []

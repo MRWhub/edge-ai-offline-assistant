@@ -3,6 +3,7 @@ package com.aichat.app.data.repository
 import com.aichat.app.data.local.entity.KnowledgeChunk
 import com.aichat.app.data.local.entity.KnowledgeChunk_
 import com.aichat.app.domain.embedder.TextEmbedder
+import com.aichat.app.domain.extractor.PortugueseKeywordExtractor
 import io.objectbox.Box
 import io.objectbox.BoxStore
 import kotlinx.coroutines.Dispatchers
@@ -17,18 +18,23 @@ class KnowledgeRepository(
     private val embedder: TextEmbedder
 ) {
     private val chunkBox: Box<KnowledgeChunk> = boxStore.boxFor(KnowledgeChunk::class.java)
+    private val keywordExtractor = PortugueseKeywordExtractor()
 
     /**
-     * Ingere um trecho de texto, gera o embedding e salva no ObjectBox.
+     * Ingere um trecho de texto, extrai palavras-chave, gera o embedding e salva no ObjectBox.
      */
     suspend fun ingestChunk(text: String, sourceName: String, estimatedTokens: Int): Long = withContext(Dispatchers.IO) {
         val vector = embedder.embed(text)
+        
+        // Extrai até 5 termos chave para índice lexical (Busca híbrida)
+        val extractedKeywords = keywordExtractor.extract(text, maxKeywords = 5).joinToString(",")
         
         val chunk = KnowledgeChunk(
             textContent = text,
             sourceName = sourceName,
             embeddingModelId = embedder.modelId,
             tokenCount = estimatedTokens,
+            keywords = extractedKeywords,
             embedding = vector
         )
         

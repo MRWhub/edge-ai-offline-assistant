@@ -23,6 +23,9 @@ class KnowledgeChunk(
     // Quantidade de tokens estimada (para orçamento de contexto LLM)
     var tokenCount: Int = 0,
 
+    // Palavras-chave extraídas heuristicamente (busca lexical híbrida) separadas por vírgula
+    var keywords: String = "",
+
     // O vetor gerado por embeddings que será pesquisado pelo ObjectBox
     // Alterado para 512 dimensões (Padrão do Universal Sentence Encoder)
     @HnswIndex(dimensions = 512) 
