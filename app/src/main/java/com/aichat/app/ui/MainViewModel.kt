@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aichat.app.data.UserPreferencesRepository
 import com.aichat.app.data.local.manager.GgufModelManager
+import com.aichat.app.data.repository.KnowledgeRepository
+import com.aichat.app.domain.usecase.RagPromptFormatter
 import com.arm.aichat.InferenceEngine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -53,8 +55,10 @@ data class UiState(
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val repository: UserPreferencesRepository,
+    private val knowledgeRepository: KnowledgeRepository,
     private val engine: InferenceEngine,
-    private val modelManager: GgufModelManager
+    private val modelManager: GgufModelManager,
+    private val ragFormatter: RagPromptFormatter
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(UiState())
@@ -182,7 +186,22 @@ class MainViewModel @Inject constructor(
         // Send to Engine
         generationJob = viewModelScope.launch {
             try {
-                engine.sendUserPrompt(userText)
+                // RAG Step: Search context from local DB first
+                val relevantChunks = withContext(Dispatchers.IO) {
+                    try {
+                        knowledgeRepository.searchRelevantContext(userText, maxResults = 3)
+                    } catch (e: Exception) {
+                        // MediaPipe falhará intencionalmente se o universal_sentence_encoder.tflite não estiver em Assets.
+                        // Nesse caso (fallback), tratamos o erro e devolvemos lista vazia. A conversa seguirá normalmente.
+                        emptyList()
+                    }
+                }
+                
+                // Format the prompt with potential RAG context
+                val finalPrompt = ragFormatter.formatPromptWithContext(userText, relevantChunks)
+
+                // Envia para o motor C++ (Que aplicará o ChatML na JNI)
+                engine.sendUserPrompt(finalPrompt)
                     .onCompletion {
                         // Done generating
                     }
