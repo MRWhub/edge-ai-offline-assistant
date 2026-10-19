@@ -31,6 +31,12 @@ object KnowledgeModule {
 
     @Provides
     @Singleton
+    fun providePdfNativeExtractor(): com.aichat.app.domain.usecase.extractor.DocumentExtractor {
+        return com.aichat.app.data.local.extractor.PdfNativeExtractorImpl()
+    }
+
+    @Provides
+    @Singleton
     fun provideKnowledgeRepository(
         boxStore: BoxStore,
         embedder: TextEmbedder

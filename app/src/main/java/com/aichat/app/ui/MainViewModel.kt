@@ -58,7 +58,8 @@ class MainViewModel @Inject constructor(
     private val knowledgeRepository: KnowledgeRepository,
     private val engine: InferenceEngine,
     private val modelManager: GgufModelManager,
-    private val ragFormatter: RagPromptFormatter
+    private val ragFormatter: RagPromptFormatter,
+    private val pdfExtractor: com.aichat.app.domain.usecase.extractor.DocumentExtractor
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(UiState())
@@ -165,6 +166,59 @@ class MainViewModel @Inject constructor(
             } catch (e: Exception) {
                 Log.e("MainViewModel", "Error loading model", e)
                 _uiState.update { it.copy(systemMessage = "Falha ao carregar: ${e.message}") }
+            }
+        }
+    }
+
+    /**
+     * Called when user selects a PDF document to attach to the RAG knowledge base.
+     */
+    fun importPdfDocument(uri: Uri, fileName: String, context: android.content.Context) {
+        viewModelScope.launch {
+            try {
+                if (!pdfExtractor.supports("application/pdf")) {
+                    _uiState.update { it.copy(systemMessage = "Erro: Tipo de arquivo não suportado nativamente.") }
+                    return@launch
+                }
+                
+                _uiState.update { it.copy(isGenerating = true, systemMessage = "Iniciando processamento nativo do PDF...") }
+                
+                // OCR e Parsing do Pdf (Isolado no IO dispatcher dentro da lib)
+                var totalChunksIngested = 0
+                var currentPage = 1
+                
+                pdfExtractor.extractText(context, uri).collect { pageText ->
+                    // UI progress
+                    _uiState.update { it.copy(systemMessage = "OCR Concluído na Página $currentPage. Ingerindo Conhecimento...") }
+                    
+                    // Chunk text gracefully
+                    val chunks = com.aichat.app.domain.usecase.extractor.DocumentChunker.chunkText(pageText)
+                    
+                    // Ingest each chunk
+                    for ((index, chunk) in chunks.withIndex()) {
+                        knowledgeRepository.ingestChunk(
+                            text = chunk,
+                            sourceName = "$fileName - Pág. $currentPage",
+                            estimatedTokens = chunk.length / 4
+                        )
+                        totalChunksIngested++
+                    }
+                    currentPage++
+                }
+                
+                _uiState.update { 
+                    it.copy(
+                        isGenerating = false, 
+                        systemMessage = "Documento importado! ($totalChunksIngested blocos de memória gerados)"
+                    )
+                }
+
+            } catch (e: SecurityException) {
+                Log.e("MainViewModel", "Security error importing PDF", e)
+                _uiState.update { it.copy(isGenerating = false, systemMessage = "Documento protegido por senha ou sem permissões.") }
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Error importing PDF", e)
+                _uiState.update { it.copy(isGenerating = false, systemMessage = "Falha ao importar o arquivo: ${e.message}") }
             }
         }
     }

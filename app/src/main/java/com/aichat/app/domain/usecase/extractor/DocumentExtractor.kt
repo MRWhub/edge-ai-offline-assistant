@@ -1,21 +1,18 @@
 package com.aichat.app.domain.usecase.extractor
 
-import java.io.File
+import android.content.Context
+import android.net.Uri
+import kotlinx.coroutines.flow.Flow
 
 /**
- * Interface para extração de texto de múltiplos formatos (PDF, DOCX, TXT, etc).
- * A implementação dessa interface converterá o arquivo em texto bruto para ser 
- * "chunkado" e inserido no ObjectBox.
+ * Interface para extração de texto de múltiplos formatos.
  */
 interface DocumentExtractor {
     
-    /**
-     * Verifica se o arquivo é suportado pelo extrator.
-     */
-    fun supports(file: File): Boolean
+    fun supports(mimeType: String): Boolean
     
     /**
-     * Extrai todo o texto possível do arquivo.
+     * Extrai texto progressivamente de um documento, emitindo bloco a bloco (ex: por página).
      */
-    fun extractText(file: File): String
+    suspend fun extractText(context: Context, uri: Uri): Flow<String>
 }

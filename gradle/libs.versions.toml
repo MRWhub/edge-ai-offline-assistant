@@ -35,6 +35,10 @@ poi = "5.2.3"
 # Embeddings (MediaPipe)
 mediapipe-tasks-text = "0.10.14"
 
+# ML Kit (Offline OCR)
+mlkit-text-recognition = "16.0.1"
+kotlinx-coroutines-play-services = "1.7.3"
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
@@ -90,6 +94,10 @@ poi-ooxml = { module = "org.apache.poi:poi-ooxml", version.ref = "poi" }
 
 # Embeddings
 mediapipe-tasks-text = { module = "com.google.mediapipe:tasks-text", version.ref = "mediapipe-tasks-text" }
+
+# ML Kit (Offline OCR for PDF)
+mlkit-text-recognition = { module = "com.google.mlkit:text-recognition", version.ref = "mlkit-text-recognition" }
+kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "kotlinx-coroutines-play-services" }
 
 [bundles]
 androidx = [

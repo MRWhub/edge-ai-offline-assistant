@@ -12,7 +12,8 @@ fun MainScreen(
     viewModel: MainViewModel,
     onSendPromptToEngine: (String, String) -> Unit,
     onStartVoiceRecognition: ((String) -> Unit) -> Unit,
-    onSelectModelClick: () -> Unit
+    onSelectModelClick: () -> Unit,
+    onAttachPdfClick: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -61,7 +62,8 @@ fun MainScreen(
                 onMicClick = { onResult ->
                     onStartVoiceRecognition(onResult)
                 },
-                onSelectModelClick = onSelectModelClick
+                onSelectModelClick = onSelectModelClick,
+                onAttachPdfClick = onAttachPdfClick
             )
         }
     }

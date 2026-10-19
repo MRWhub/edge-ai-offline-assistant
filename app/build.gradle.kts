@@ -93,6 +93,8 @@ dependencies {
 
     // Document Extractors
     implementation(libs.poi.ooxml)
+    implementation(libs.mlkit.text.recognition)
+    implementation(libs.kotlinx.coroutines.play.services)
 
     // Text Embeddings (RAG)
     implementation(libs.mediapipe.tasks.text)

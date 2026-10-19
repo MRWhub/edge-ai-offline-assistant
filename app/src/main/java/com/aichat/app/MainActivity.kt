@@ -38,6 +38,16 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+    
+    // PDF picker launcher
+    private val getPdfContent = registerForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri: Uri? ->
+        uri?.let {
+            val fileName = "doc-${System.currentTimeMillis().toString(16)}.pdf"
+            viewModel.importPdfDocument(it, fileName, applicationContext)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,6 +73,9 @@ class MainActivity : AppCompatActivity() {
                         },
                         onSelectModelClick = {
                             getContent.launch(arrayOf("*/*"))
+                        },
+                        onAttachPdfClick = {
+                            getPdfContent.launch(arrayOf("application/pdf"))
                         }
                     )
                 }

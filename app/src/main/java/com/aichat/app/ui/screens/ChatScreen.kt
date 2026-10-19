@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Psychology
@@ -67,7 +68,8 @@ fun ChatScreen(
     onToggleDebugMode: () -> Unit,
     onSendMessage: (String) -> Unit,
     onMicClick: ((String) -> Unit) -> Unit,
-    onSelectModelClick: () -> Unit
+    onSelectModelClick: () -> Unit,
+    onAttachPdfClick: () -> Unit
 ) {
     var inputText by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
@@ -180,7 +182,8 @@ fun ChatScreen(
                     onMicClick { recognizedText ->
                         inputText += " $recognizedText".trimStart()
                     }
-                }
+                },
+                onAttachPdfClick = onAttachPdfClick
             )
         }
     ) { paddingValues ->
@@ -286,7 +289,8 @@ fun ChatBottomBar(
     onTextChange: (String) -> Unit,
     onSend: () -> Unit,
     isGenerating: Boolean,
-    onMicClick: () -> Unit
+    onMicClick: () -> Unit,
+    onAttachPdfClick: () -> Unit
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -299,6 +303,17 @@ fun ChatBottomBar(
                 .padding(horizontal = 12.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            IconButton(
+                onClick = onAttachPdfClick,
+                enabled = !isGenerating
+            ) {
+                Icon(
+                    imageVector = Icons.Default.AttachFile,
+                    contentDescription = "Anexar PDF",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+            
             OutlinedTextField(
                 value = text,
                 onValueChange = onTextChange,
