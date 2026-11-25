@@ -2,20 +2,23 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.hilt.android)
+    alias(libs.plugins.objectbox)
+    id("kotlin-kapt")
 }
 
 android {
-    namespace = "com.example.llama"
+    namespace = "com.aichat.app"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.llama.aichat"
+        applicationId = "com.aichat.app"
 
         minSdk = 33
         targetSdk = 36
 
         versionCode = 1
-        versionName = "1.0"
+        versionName = "0.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -29,8 +32,8 @@ android {
 
     buildTypes {
         debug {
-            isMinifyEnabled = true
-            isShrinkResources = true
+            isMinifyEnabled = false
+            isShrinkResources = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android.txt"),
                 "proguard-rules.pro"
@@ -45,6 +48,11 @@ android {
             )
         }
     }
+    
+    androidResources {
+        noCompress += "tflite"
+    }
+    
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -58,6 +66,10 @@ android {
     }
 }
 
+kapt {
+    correctErrorTypes = true
+}
+
 dependencies {
     implementation(libs.bundles.androidx)
     implementation(platform(libs.androidx.compose.bom))
@@ -66,6 +78,26 @@ dependencies {
     implementation(libs.material)
 
     implementation(project(":lib"))
+
+    // Hilt
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler)
+    implementation(libs.hilt.navigation.compose)
+
+    // ObjectBox
+    implementation(libs.objectbox.android)
+    implementation(libs.objectbox.kotlin)
+
+    // Security (Crypto DataStore / Keys)
+    implementation(libs.androidx.security.crypto)
+
+    // Document Extractors
+    implementation(libs.poi.ooxml)
+    implementation(libs.mlkit.text.recognition)
+    implementation(libs.kotlinx.coroutines.play.services)
+
+    // Text Embeddings (RAG)
+    implementation(libs.mediapipe.tasks.text)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

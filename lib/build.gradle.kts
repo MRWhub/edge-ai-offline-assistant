@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.arm.aichat"
+    namespace = "com.aichat.lib"
     compileSdk = 36
 
     ndkVersion = "30.0.16248370"
@@ -33,6 +33,7 @@ android {
                 arguments += "-DGGML_BACKEND_DL=ON"
                 arguments += "-DGGML_CPU_ALL_VARIANTS=ON"
                 arguments += "-DGGML_LLAMAFILE=OFF"
+                arguments += "-DGGML_VULKAN=OFF"
             }
         }
         aarMetadata {
