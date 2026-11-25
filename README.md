@@ -54,4 +54,4 @@ flowchart LR
 
 ## Créditos e Licença
 
-O módulo nativo `:lib` utiliza como base a camada de integração JNI/C++ para `llama.cpp` inspirada nos exemplos open-source da Arm (`com.arm.aichat`), estendida neste projeto com controle dinâmico de contexto por hardware, arquitetura Compose/Hilt e pipeline completo de RAG híbrido on-device. Distribuído sob licença **Apache 2.0**.
+O módulo nativo `:lib` utiliza como base a camada de integração JNI/C++ para `llama.cpp` inspirada nos exemplos open-source da Arm (`com.arm.aichat`), estendida neste projeto com controle dinâmico de contexto por hardware, arquitetura Compose/Hilt e pipeline completo de RAG híbrido on-device. Distribuído sob licença **MIT**.
